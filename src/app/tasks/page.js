@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { taskService } from '../../lib/api';
+import { FaEdit, FaTrash } from 'react-icons/fa';
+import { FaSave, FaTimes } from 'react-icons/fa';
+
 
 const TasksPage = () => {
   const [tasks, setTasks] = useState([]);
@@ -34,9 +37,11 @@ const TasksPage = () => {
     e.preventDefault();
     try {
       const task = await taskService.createTask(token, newTask);
+      console.log("TASK", task)
       setTasks([...tasks, task.task]);
       setNewTask({ title: '', description: '' });
     } catch (err) {
+      
       console.error('Error al crear tarea', err.message);
     }
   };
@@ -62,8 +67,8 @@ const TasksPage = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <h2 className="text-3xl font-semibold mb-6">Mis Tareas</h2>
+    <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
+      <h2 className="text-3xl font-semibold mb-6 text-gray-900">Mis Tareas</h2>
 
       <form onSubmit={handleCreate} className="space-y-4 mb-6">
         <input
@@ -71,16 +76,16 @@ const TasksPage = () => {
           placeholder="Título"
           value={newTask.title}
           onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-          className="w-full p-2 border border-gray-300 rounded-md"
+          className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-gray-900"
         />
         <input
           type="text"
           placeholder="Descripción"
           value={newTask.description}
           onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
-          className="w-full p-2 border border-gray-300 rounded-md"
+          className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-gray-900"
         />
-        <button className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+        <button className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300 ease-in-out">
           Crear tarea
         </button>
       </form>
@@ -88,82 +93,84 @@ const TasksPage = () => {
       <ul className="space-y-4">
         {tasks.length > 0 ? (
           tasks.map((task) => (
-            <li key={task.id} className="p-4 border rounded-md">
+            <li key={task.id} className="p-4 border rounded-md bg-gray-50 hover:bg-gray-100 transition duration-300">
               <div className="flex justify-between items-center mb-2">
                 <div>
-                  <h3 className="text-xl font-semibold">{task.title}</h3>
-                  <p>{task.description}</p>
-                  <span className="text-sm text-gray-600">Estado: {task.status}</span>
+                  <h3 className="text-xl font-semibold text-gray-900">{task.title}</h3>
+                  <p className="text-gray-800">{task.description}</p>
+                  <span className="text-sm text-gray-700">Estado: {task.status}</span>
                 </div>
                 <div className="flex gap-3">
                   <button
                     onClick={() => setEditTask(task)}
-                    className="text-blue-600 hover:underline"
+                    className="text-blue-600 hover:text-blue-800"
                   >
-                    Editar
+                    <FaEdit />
                   </button>
                   <button
                     onClick={() => handleDelete(task.id)}
-                    className="text-red-600 hover:underline"
+                    className="text-red-600 hover:text-red-800"
                   >
-                    Eliminar
+                    <FaTrash />
                   </button>
                 </div>
               </div>
             </li>
           ))
         ) : (
-          <p>No hay tareas disponibles.</p>
+          <p className="text-gray-700">No hay tareas disponibles.</p>
         )}
       </ul>
 
       {/* Formulario para editar tarea */}
-      {editTask && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-          <form
-            onSubmit={handleUpdate}
-            className="bg-white p-6 rounded-md shadow-md w-full max-w-md space-y-4"
-          >
-            <h3 className="text-xl font-bold">Editar tarea</h3>
-            <input
-              type="text"
-              value={editTask.title}
-              onChange={(e) => setEditTask({ ...editTask, title: e.target.value })}
-              className="w-full p-2 border border-gray-300 rounded-md"
-              placeholder="Título"
-            />
-            <input
-              type="text"
-              value={editTask.description}
-              onChange={(e) => setEditTask({ ...editTask, description: e.target.value })}
-              className="w-full p-2 border border-gray-300 rounded-md"
-              placeholder="Descripción"
-            />
-            <select
-              value={editTask.status}
-              onChange={(e) => setEditTask({ ...editTask, status: e.target.value })}
-              className="w-full p-2 border border-gray-300 rounded-md"
-            >
-              <option value="pendiente">Pendiente</option>
-              <option value="completada">Completada</option>
-              <option value="en_progreso">progreso</option>
+   {editTask && (
+  <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
+    <form
+      onSubmit={handleUpdate}
+      className="bg-white p-6 rounded-md shadow-lg w-full max-w-md space-y-4"
+    >
+      <h3 className="text-xl font-bold text-gray-900">Editar tarea</h3>
+      <input
+        type="text"
+        value={editTask.title}
+        onChange={(e) => setEditTask({ ...editTask, title: e.target.value })}
+        className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-gray-900"
+        placeholder="Título"
+      />
+      <input
+        type="text"
+        value={editTask.description}
+        onChange={(e) => setEditTask({ ...editTask, description: e.target.value })}
+        className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-gray-900"
+        placeholder="Descripción"
+      />
+      <select
+        value={editTask.status}
+        onChange={(e) => setEditTask({ ...editTask, status: e.target.value })}
+        className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-gray-900"
+      >
+        <option value="pendiente">Pendiente</option>
+        <option value="completada">Completada</option>
+        <option value="en_progreso">En progreso</option>
+      </select>
+      <div className="flex justify-between">
+        <button
+          type="button"
+          onClick={() => setEditTask(null)}
+          className="flex items-center gap-2 text-gray-700 hover:underline"
+        >
+          <FaTimes />
+          Cancelar
+        </button>
+        <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300">
+          <FaSave />
+          Guardar cambios
+        </button>
+      </div>
+    </form>
+  </div>
+)}
 
-            </select>
-            <div className="flex justify-between">
-              <button
-                type="button"
-                onClick={() => setEditTask(null)}
-                className="text-gray-600 hover:underline"
-              >
-                Cancelar
-              </button>
-              <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-                Guardar cambios
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
     </div>
   );
 };
