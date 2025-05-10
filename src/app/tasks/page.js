@@ -11,6 +11,7 @@ const TasksPage = () => {
   const [editTask, setEditTask] = useState(null);
   const [token, setToken] = useState(null);
   const [errors, setErrors] = useState({});
+  const [alertMessage, setAlertMessage] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -22,6 +23,11 @@ const TasksPage = () => {
       loadTasks(savedToken);
     }
   }, [router]);
+
+  const showAlert = (message) => {
+    setAlertMessage(message);
+    setTimeout(() => setAlertMessage(''), 3000);
+  };
 
   const loadTasks = async (token) => {
     try {
@@ -51,6 +57,7 @@ const TasksPage = () => {
       setTasks([...tasks, task.task]);
       setNewTask({ title: '', description: '' });
       setErrors({});
+      showAlert('Tarea creada exitosamente');
     } catch (err) {
       console.error('Error al crear tarea', err.message);
     }
@@ -60,6 +67,7 @@ const TasksPage = () => {
     try {
       await taskService.deleteTask(token, id);
       setTasks(tasks.filter((t) => t.id !== id));
+      showAlert('Tarea eliminada exitosamente');
     } catch (err) {
       console.error('Error al eliminar tarea', err.message);
     }
@@ -77,6 +85,7 @@ const TasksPage = () => {
       setTasks(tasks.map((t) => (t.id === editTask.id ? updated.task : t)));
       setEditTask(null);
       setErrors({});
+      showAlert('Tarea actualizada exitosamente');
     } catch (err) {
       console.error('Error al actualizar tarea', err.message);
     }
@@ -84,6 +93,12 @@ const TasksPage = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
+      {alertMessage && (
+        <div className="mb-4 p-3 bg-green-100 text-green-800 rounded-md shadow">
+          {alertMessage}
+        </div>
+      )}
+
       <h2 className="text-3xl font-semibold mb-6 text-gray-900">Mis Tareas</h2>
 
       {/* Crear tarea */}
